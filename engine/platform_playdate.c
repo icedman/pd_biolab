@@ -5,6 +5,7 @@
 
 #define WIDTH 400
 #define HEIGHT 240
+static uint32_t platform_output_samplerate = 44100;
 
 const char *systemFontPath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
 LCDFont *systemFont = NULL;
@@ -91,6 +92,8 @@ uint8_t *platform_load_asset(const char *name, uint32_t *bytes_read) {
   pd->file->close(fp);
   return data;
 }
+
+uint32_t platform_samplerate(void) { return platform_output_samplerate; }
 
 void exit(int) {}
 void abort(void) {}

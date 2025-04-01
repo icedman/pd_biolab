@@ -120,9 +120,9 @@ int32_t rand_int(int32_t min, int32_t max) {
 json_t *json_parse_data(uint8_t *data, uint32_t len);
 
 json_t *json_parse(uint8_t *data, uint32_t len) {
-  #ifdef PLATFORM_PLAYDATE
+#ifdef PLATFORM_PLAYDATE
   return json_parse_data(data, len);
-  #else
+#else
   uint32_t size_req = 0;
   uint32_t tokens_capacity = 1 + len / 2;
 
@@ -137,5 +137,5 @@ json_t *json_parse(uint8_t *data, uint32_t len) {
   json_parse_tokens((char *)data, tokens, tokens_len, v);
   free(tokens);
   return v;
-  #endif
+#endif
 }

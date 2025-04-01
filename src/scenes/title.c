@@ -35,24 +35,24 @@ static void update(void) {
 }
 
 static void draw(void) {
+	float d = engine.time - 1;
 	// scene_base_draw();
 
 	render_push();
 	#ifdef RENDER_PLAYDATE
 	render_translate(vec2(-20,-10));
 	// render_scale(vec2(2,2));
-	float d = engine.time - 1;
 	image_draw(img_biolab,   vec2(scale(clamp(d*d*-d, 0, 1), 1.0, 0,-160,  44), 26));
 	image_draw(img_disaster, vec2(scale(clamp(d*d*-d, 0, 1), 1.0, 0, 300,  44), 70));
 	image_draw(img_player,   vec2(scale(clamp(d*d*-d, 0, 1), 0.5, 0, 240, 166), 56));
 
 	#endif
 	scene_base_draw();
-	render_pop();
 	
 	if (d > 2 || (int)(d * 2) % 2 == 0) {
-		font_draw(g.font, vec2(120, 140), "Press X or C to Play", FONT_ALIGN_CENTER);
+		font_draw(g.font, vec2(90, 110), "Press X or C to Play", FONT_ALIGN_CENTER);
 	}
+	render_pop();
 }
 
 scene_t scene_title = {

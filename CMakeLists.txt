@@ -50,6 +50,7 @@ file(GLOB SRC_FILES
 		engine/font.c
 		engine/json.c
 		engine/map.c
+		engine/sound.c
 		src/scenes/credits.c
 		src/scenes/game.c
 		src/scenes/stats.c

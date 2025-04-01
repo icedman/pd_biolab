@@ -1,6 +1,5 @@
 #include "json.h"
 
-#include "pd_api.h"
 #include <stdio.h>
 
 #ifndef OVERRIDE_JSON
@@ -9,6 +8,7 @@
 
 #else
 
+// #include "pd_api.h"
 extern PlaydateAPI *playdate;
 
 static char *pd_strdup(const char *str) {
@@ -65,6 +65,8 @@ void free_json_node(json_node *node) {
   // Finally, free the node itself
   free(node);
 }
+
+void json_destroy(json_t *n) { free_json_node(n); }
 
 void dump_json_node(json_node *node, int level) {
   char tmp[32] = "    ";
@@ -133,19 +135,20 @@ const char *typeToName(json_value_type type) {
 }
 
 static void willDecodeSublist(json_decoder *decoder, const char *name,
-                       json_value_type type) {
+                              json_value_type type) {
   json_node *top_node = (json_node *)decoder->userdata;
   json_node *new_node = create_json_node(name, type, (json_value){0});
   add_child(top_node, new_node);
   decoder->userdata = new_node;
 }
 
-static int shouldDecodeTableValueForKey(json_decoder *decoder, const char *key) {
+static int shouldDecodeTableValueForKey(json_decoder *decoder,
+                                        const char *key) {
   return 1;
 }
 
 static void didDecodeTableValue(json_decoder *decoder, const char *key,
-                         json_value value) {
+                                json_value value) {
   if (value.type == kJSONArray || value.type == kJSONTable) {
     return;
   }
@@ -154,9 +157,12 @@ static void didDecodeTableValue(json_decoder *decoder, const char *key,
   add_child(parent, new_node);
 }
 
-static int shouldDecodeArrayValueAtIndex(json_decoder *decoder, int pos) { return 1; }
+static int shouldDecodeArrayValueAtIndex(json_decoder *decoder, int pos) {
+  return 1;
+}
 
-static void didDecodeArrayValue(json_decoder *decoder, int pos, json_value value) {
+static void didDecodeArrayValue(json_decoder *decoder, int pos,
+                                json_value value) {
   if (value.type == kJSONArray || value.type == kJSONTable) {
     return;
   }
@@ -169,7 +175,7 @@ static void didDecodeArrayValue(json_decoder *decoder, int pos, json_value value
 }
 
 static void *didDecodeSublist(json_decoder *decoder, const char *name,
-                       json_value_type type) {
+                              json_value_type type) {
   PlaydateAPI *pd = playdate;
   json_node *n = (json_node *)decoder->userdata;
   decoder->userdata = n->parent;
@@ -197,108 +203,117 @@ json_node *json_parse_data(uint8_t *data, uint32_t len) {
   return root;
 }
 
-int json_tokenize(char *data, unsigned int len, json_token_t *tokens, unsigned int tokens_len, unsigned int *parsed_size_req) {
-    // not used
-    return 1;
+int json_tokenize(char *data, unsigned int len, json_token_t *tokens,
+                  unsigned int tokens_len, unsigned int *parsed_size_req) {
+  // not used
+  return 1;
 }
 
-void json_parse_tokens(char *data, json_token_t *tokens, unsigned int len, json_t *json) {
-    // not used
+void json_parse_tokens(char *data, json_token_t *tokens, unsigned int len,
+                       json_t *json) {
+  // not used
 }
 
 double json_number(json_t *v) {
-    if (!v || v->type > JSON_NUMBER) {
-        return 0;
-    }
-    return v->number;
+  if (!v || v->type > JSON_NUMBER) {
+    return 0;
+  }
+  return v->number;
 }
 
 int json_bool(json_t *v) {
-    if (!v) {
-        return 0;
-    }
-    if (v->type > JSON_NUMBER) {
-        return (v->len > 0);
-    }
-    return (v->number != 0);
+  if (!v) {
+    return 0;
+  }
+  if (v->type > JSON_NUMBER) {
+    return (v->len > 0);
+  }
+  return (v->number != 0);
 }
 
 char *json_string(json_t *v) {
-    if (!v || v->type != JSON_STRING) {
-        return NULL;
-    }
-    return v->string;
+  if (!v || v->type != JSON_STRING) {
+    return NULL;
+  }
+  return v->string;
 }
 
-#define MAX_CHILDREN 1024  // Define a reasonable maximum limit
+#define MAX_CHILDREN 1024 // Define a reasonable maximum limit
 
 json_t *json_values(json_t *v) {
-    static json_node *_values[MAX_CHILDREN + 1]; // +1 for NULL terminator
-    int idx = 0;
-    json_node *n = v->child;
+  static json_node *_values[MAX_CHILDREN + 1]; // +1 for NULL terminator
+  int idx = 0;
+  json_node *n = v->child;
 
-    while (n && idx < MAX_CHILDREN) {
-        _values[idx++] = n;
-        n = n->next;
-    }
+  while (n && idx < MAX_CHILDREN) {
+    _values[idx++] = n;
+    n = n->next;
+  }
 
-    _values[idx] = NULL;  // Null-terminate the array
-    return _values[0];
+  _values[idx] = NULL; // Null-terminate the array
+  return (void *)&_values;
 }
 
 json_t *json_value_at(json_t *v, unsigned int i) {
-    json_node *n = v->child;
-    int idx = 0;
-    while (n) {
-      if (idx == i) {
-        return n;
-      }
-      idx++;
-      n = n->next;
-    }
+  if (!v)
     return NULL;
+  json_node *n = v->child;
+  int idx = 0;
+  while (n) {
+    if (idx == i) {
+      return n;
+    }
+    idx++;
+    n = n->next;
+  }
+  return NULL;
 }
 
 char **json_keys(json_node *v) {
-    static char *_keys[MAX_CHILDREN + 1]; // +1 for NULL terminator
-    int idx = 0;
-    json_node *n = v->child;
+  if (!v)
+    return NULL;
+  static char *_keys[MAX_CHILDREN + 1]; // +1 for NULL terminator
+  int idx = 0;
+  json_node *n = v->child;
 
-    while (n && idx < MAX_CHILDREN) {
-        _keys[idx++] = n->key;  // Store key pointer
-        n = n->next;
-    }
+  while (n && idx < MAX_CHILDREN) {
+    _keys[idx++] = n->key; // Store key pointer
+    n = n->next;
+  }
 
-    _keys[idx] = NULL;  // Null-terminate the array
-    return _keys;
+  _keys[idx] = NULL; // Null-terminate the array
+  return _keys;
 }
 
 char *json_key_at(json_t *v, unsigned int i) {
-    json_node *n = v->child;
-    int idx = 0;
-    while (n) {
-      if (idx == i) {
-        return n->key;
-      }
-      idx++;
-      n = n->next;
-    }
+  if (!v)
     return NULL;
+  json_node *n = v->child;
+  int idx = 0;
+  while (n) {
+    if (idx == i) {
+      return n->key;
+    }
+    idx++;
+    n = n->next;
+  }
+  return NULL;
 }
 
 json_t *json_value_for_key(json_t *v, char *key) {
-    if (!v || v->type != JSON_OBJECT) {
-        return NULL;
-    }
-
-    json_node *n = v->child;
-    while (n) {
-        if (n->key && strcmp(key, n->key) == 0) {
-            return n;
-        }
-        n = n->next;
-    }
+  if (!v || v->type != JSON_OBJECT) {
     return NULL;
+  }
+
+  json_node *n = v->child;
+  while (n) {
+    if (n->key && strcmp(key, n->key) == 0) {
+      // printf("%s\n", key);
+      return n;
+    }
+    n = n->next;
+  }
+  return NULL;
 }
 
 #endif

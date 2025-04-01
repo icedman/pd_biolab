@@ -26,8 +26,8 @@ static anim_def_t *anim_plasma_hit;
 static anim_def_t *anim_gib;
 static anim_def_t *anim_gib_gun;
 
-// static sound_source_t *sound_plasma;
-// static sound_source_t *sound_die;
+static sound_source_t *sound_plasma;
+static sound_source_t *sound_die;
 
 static void load(void) {
 	image_t *sheet = image("assets/sprites/player.qoi");
@@ -48,8 +48,8 @@ static void load(void) {
 	anim_plasma_idle = anim_def(plasma_sheet, vec2i(8, 8), 1.0, {0});
 	anim_plasma_hit  = anim_def(plasma_sheet, vec2i(8, 8), 0.1, {0,1,2,3,4,5, ANIM_STOP});
 
-	// sound_plasma = sound_source("assets/sounds/plasma.qoa");
-	// sound_die    = sound_source("assets/sounds/die-respawn.qoa");
+	sound_plasma = sound_source("assets/sounds/plasma.qoa");
+	sound_die    = sound_source("assets/sounds/die-respawn.qoa");
 }
 
 static void init(entity_t *self) {
@@ -125,7 +125,7 @@ static void update(entity_t *self) {
 			plasma->anim.flip_x = self->player.flip;
 			plasma->projectile.anim_hit = anim_plasma_hit;
 		}
-		// sound_play(sound_plasma);
+		sound_play(sound_plasma);
 	}
 
 	bool was_on_ground = self->on_ground;
@@ -197,7 +197,7 @@ static void damage(entity_t *self, entity_t *other, float damage) {
 			gun->size = vec2(8, 8);
 		}
 
-		// sound_play(sound_die);
+		sound_play(sound_die);
 	}
 }
 

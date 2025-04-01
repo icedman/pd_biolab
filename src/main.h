@@ -10,6 +10,7 @@
 #include "noise.h"
 #include "platform.h"
 #include "render.h"
+#include "sound.h"
 #include "types.h"
 #include "utils.h"
 
@@ -24,7 +25,7 @@ typedef enum { A_LEFT, A_RIGHT, A_JUMP, A_SHOOT } action_t;
 typedef struct {
   font_t *font;
   noise_t *noise;
-  // sound_t music;
+  sound_t music;
   entity_ref_t player;
 
   int death_count;

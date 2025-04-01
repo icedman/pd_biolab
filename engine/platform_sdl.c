@@ -2,10 +2,10 @@
 // see: https://nullprogram.com/blog/2023/01/08/
 #include "SDL.h"
 
+#include "engine.h"
 #include "input.h"
 #include "platform.h"
-// #include "sound.h"
-#include "engine.h"
+#include "sound.h"
 #include "utils.h"
 // #include "alloc.h"
 
@@ -433,14 +433,15 @@ int main(int argc, char *argv[]) {
 
   perf_freq = SDL_GetPerformanceFrequency();
 
-  // SDL_AudioSpec obtained_spec;
-  // audio_device = SDL_OpenAudioDevice(NULL, 0, &(SDL_AudioSpec){
-  //   .freq = platform_output_samplerate,
-  //   .format = AUDIO_F32SYS,
-  //   .channels = 2,
-  //   .samples = 1024,
-  //   .callback = platform_audio_callback
-  // }, &obtained_spec, 0);
+  SDL_AudioSpec obtained_spec;
+  audio_device =
+      SDL_OpenAudioDevice(NULL, 0,
+                          &(SDL_AudioSpec){.freq = platform_output_samplerate,
+                                           .format = AUDIO_F32SYS,
+                                           .channels = 2,
+                                           .samples = 1024,
+                                           .callback = platform_audio_callback},
+                          &obtained_spec, 0);
 
   window =
       SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,

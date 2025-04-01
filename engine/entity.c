@@ -316,9 +316,13 @@ entity_list_t entities_by_type(entity_type_t type) {
 entity_list_t entities_from_json_names(json_t *targets) {
   entity_list_t list = {.len = 0, .entities = get_entity_list()};
 
-  json_t *values = json_values(targets);
+#ifdef PLATFORM_PLAYDATE
+  json_t **values = (void *)json_values(targets);
   for (int i = 0; targets && i < targets->len; i++) {
-    char *target_name = json_string(&values[i]);
+    char *target_name = json_string(values[i]);
+    if (!target_name) {
+      continue;
+    }
     entity_t *target = entity_by_name(target_name);
     if (target) {
       // TODO! free somewhere
@@ -326,6 +330,21 @@ entity_list_t entities_from_json_names(json_t *targets) {
       list.entities[list.len++] = entity_ref(target);
     }
   }
+#else
+  json_t *values = json_values(targets);
+  for (int i = 0; targets && i < targets->len; i++) {
+    char *target_name = json_string(&values[i]);
+    if (!target_name) {
+      continue;
+    }
+    entity_t *target = entity_by_name(target_name);
+    if (target) {
+      // TODO! free somewhere
+      // malloc(sizeof(entity_ref_t));
+      list.entities[list.len++] = entity_ref(target);
+    }
+  }
+#endif
   return list;
 }
 

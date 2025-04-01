@@ -26,10 +26,10 @@ void main_init(void) {
   g.noise = noise(8);
   g.player = entity_ref_none();
   g.font = font("assets/font_04b03.qoi", "assets/font_04b03.json");
-  // g.music = sound(sound_source("assets/music/biochemie.qoa"));
-  // sound_set_loop(g.music, true);
+  g.music = sound(sound_source("assets/music/biochemie.qoa"));
+  sound_set_loop(g.music, true);
 
-  // sound_set_global_volume(0.75);
+  sound_set_global_volume(0.75);
   engine_set_scene(&scene_title);
 
   // uint32_t len;

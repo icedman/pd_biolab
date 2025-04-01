@@ -60,6 +60,7 @@ void render_set_post_effect(render_post_effect_t post) {}
 void render_frame_prepare(void) {
   PlaydateAPI *pd = playdate;
   pd->graphics->fillRect(0, 0, 400, 240, kColorWhite);
+  // pd->graphics->fillRect(0, 0, 400, 240, get_pattern(2));
 }
 
 void render_frame_end(void) {}
@@ -92,6 +93,9 @@ void render_draw_quad(quadverts_t *quad, texture_t texture_handle) {
   // }
 
   LCDBitmap *texture = textures[texture_handle.index];
+  if (!texture) {
+    return;
+  }
   vec2i_t texture_size = texture_sizes[texture_handle.index];
   int src_tiles = texture_size.x / texture_size.y;
 

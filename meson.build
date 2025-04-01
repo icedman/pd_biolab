@@ -23,6 +23,8 @@ engine_files = [
         'engine/engine.c',
         'engine/noise.c',
         'engine/font.c',
+        'engine/json.c',
+        'engine/sound.c',
         'engine/map.c',
         'src/scenes/credits.c',
         'src/scenes/game.c',

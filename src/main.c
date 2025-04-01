@@ -31,6 +31,11 @@ void main_init(void) {
 
   // sound_set_global_volume(0.75);
   engine_set_scene(&scene_title);
+
+  // uint32_t len;
+  // uint8_t *data = platform_load_asset("assets/levels/biolab-1.json", &len);
+  // json_parse_data(data, len);
+  // free(data);
 }
 
 void main_cleanup(void) {}

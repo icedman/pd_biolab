@@ -5,8 +5,8 @@
 // collision testing with trace(). Maps can be loaded from a json_t or created
 // with a data array.
 
-#include "../libs/pl_json.h"
 #include "image.h"
+#include "json.h"
 #include "types.h"
 
 typedef struct map_anim_def_t map_anim_def_t;

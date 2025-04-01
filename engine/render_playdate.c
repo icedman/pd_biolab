@@ -68,9 +68,9 @@ void render_draw_quad(quadverts_t *quad, texture_t texture_handle) {
   PlaydateAPI *pd = playdate;
 
   vertex_t *v = quad->vertices;
-  rgba_t color = v[0].color;
+  // rgba_t color = v[0].color;
 
-  float l = rgbToLuminance(color.r, color.g, color.b);
+  // float l = rgbToLuminance(color.r, color.g, color.b);
 
   // int coords[8] = {
   //  v[0].pos.x, v[0].pos.y,
@@ -105,8 +105,13 @@ void render_draw_quad(quadverts_t *quad, texture_t texture_handle) {
   int sx = v[0].uv.x * sz;
   int sy = v[0].uv.y * sz;
 
+  int fX = v[0].uv.x > v[1].uv.x ? -1 : 1;
+  if (fX == -1) {
+    sx = (texture_size.x - v[0].uv.x) * sz;
+  }
+
   pd->graphics->setClipRect(dx, dy, dst_size.x, dst_size.y);
-  pd->graphics->drawScaledBitmap(texture, dx - sx, dy - sy, sz, sz);
+  pd->graphics->drawScaledBitmap(texture, dx - sx, dy - sy, sz * fX, sz);
   pd->graphics->clearClipRect();
 }
 

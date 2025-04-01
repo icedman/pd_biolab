@@ -1,8 +1,8 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include "../libs/pl_json.h"
 #include "input.h"
+#include "json.h"
 #include "types.h"
 #include "utils.h"
 

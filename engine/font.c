@@ -26,6 +26,8 @@ font_t *font(char *path, char *definition_path) {
   font->last_char = json_number(json_value_for_key(def, "last_char"));
   font->line_height = json_number(json_value_for_key(def, "height"));
 
+  printf("%d %d %d\n", font->first_char, font->last_char, font->line_height);
+
   int expected_chars = font->last_char - font->first_char;
 
   error_if(metrics == NULL || metrics->type != JSON_ARRAY,
@@ -34,14 +36,15 @@ font_t *font(char *path, char *definition_path) {
            "Font metrics has incorrect length (expected %d have %d)",
            expected_chars, metrics->len / 7);
 
+  json_t *values = json_values(metrics);
   font->glyphs = malloc(expected_chars * sizeof(font_glyph_t));
   for (int i = 0, a = 0; i < expected_chars; i++, a += 7) {
     font->glyphs[i] = (font_glyph_t){
-        .pos = {metrics->values[a + 0].number, metrics->values[a + 1].number},
-        .size = {metrics->values[a + 2].number, metrics->values[a + 3].number},
-        .offset = {metrics->values[a + 4].number,
-                   metrics->values[a + 5].number},
-        .advance = metrics->values[a + 6].number};
+        .pos = {values[a + 0].number, values[a + 1].number},
+        .size = {values[a + 2].number, values[a + 3].number},
+        .offset = {values[a + 4].number,
+                   values[a + 5].number},
+        .advance = values[a + 6].number};
   }
 
   free(def);

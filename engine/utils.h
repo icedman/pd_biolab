@@ -4,7 +4,7 @@
 // Various math and utility functions
 // FIXME: some of these are unused and should probably be removed?
 
-#include "../libs/pl_json.h"
+#include "json.h"
 #include "types.h"
 #include <string.h>
 

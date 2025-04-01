@@ -6,8 +6,8 @@
 // file that specifies the position, size and advance width of each glyph.
 // Use the font_tool.html to create the image and json.
 
-#include "../libs/pl_json.h"
 #include "image.h"
+#include "json.h"
 #include "types.h"
 
 typedef struct {

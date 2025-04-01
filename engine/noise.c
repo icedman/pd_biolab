@@ -13,6 +13,7 @@ noise_t *noise(uint8_t size_bits) {
   noise_t *n = malloc(sizeof(noise_t));
   n->size_bits = size_bits;
 
+  // TODO! free somewhere
   uint16_t size = 1 << size_bits;
   n->g = malloc(sizeof(vec2_t) * size);
   n->p = malloc(sizeof(uint16_t *) * size);

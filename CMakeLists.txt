@@ -48,6 +48,7 @@ file(GLOB SRC_FILES
 		engine/engine.c
 		engine/noise.c
 		engine/font.c
+		engine/json.c
 		engine/map.c
 		src/scenes/credits.c
 		src/scenes/game.c

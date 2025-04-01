@@ -15,7 +15,17 @@ entity_vtab_t entity_vtab[ENTITY_TYPES_COUNT];
 static uint32_t entities_len = 0;
 static uint16_t entity_unique_id = 0;
 static entity_t *entities[ENTITIES_MAX];
+static entity_t *draw_ents[ENTITIES_MAX];
 static entity_t entities_storage[ENTITIES_MAX];
+
+#define ENTITIES_LIST_MAX 8
+static entity_ref_t entities_list[(ENTITIES_MAX >> 1)][ENTITIES_LIST_MAX];
+static int entities_list_index = 0;
+
+entity_ref_t *get_entity_list() {
+  entities_list_index = entities_list_index % ENTITIES_LIST_MAX;
+  return entities_list[entities_list_index++];
+}
 
 static void entity_move(entity_t *self, vec2_t vstep);
 static void entity_handle_trace_result(entity_t *self, trace_t *t);
@@ -93,9 +103,17 @@ void entities_init(void) {
 
 void entities_cleanup(void) { entities_reset(); }
 
+static bool entities_first_reset = true;
 void entities_reset(void) {
   for (int i = 0; i < ENTITIES_MAX; i++) {
     entities[i] = &entities_storage[i];
+    if (!entities_first_reset) {
+      if (entities[i]->name) {
+        free(entities[i]->name);
+        entities[i]->name = 0;
+      }
+    }
+    entities_first_reset = false;
   }
   entities_len = 0;
 }
@@ -191,7 +209,7 @@ void entities_draw(vec2_t viewport) {
   // FIXME: this copies the entity array - which is sorted by pos.x/y and
   // sorts it again by draw_order. It's using insertion sort, which is slow
   // for data that is not already mostly sorted.
-  entity_t **draw_ents = malloc(sizeof(entity_t *) * entities_len);
+  // entity_t **draw_ents = malloc(sizeof(entity_t *) * entities_len);
   memcpy(draw_ents, entities, entities_len * sizeof(entity_t *));
 
 #define SORT_DRAW_ORDER(a, b) (a->draw_order > b->draw_order)
@@ -223,7 +241,7 @@ entity_list_t entities_by_proximity(entity_t *ent, float radius,
 
 entity_list_t entities_by_location(vec2_t pos, float radius, entity_type_t type,
                                    entity_t *exclude) {
-  entity_list_t list = {.len = 0, .entities = malloc(0)};
+  entity_list_t list = {.len = 0, .entities = get_entity_list()};
 
   float start_pos = pos.ENTITY_SWEEP_AXIS - radius;
   float end_pos = start_pos + radius * 2;
@@ -269,7 +287,8 @@ entity_list_t entities_by_location(vec2_t pos, float radius, entity_type_t type,
       float yd =
           entity->pos.y + (entity->pos.y < pos.y ? entity->size.y : 0) - pos.y;
       if ((xd * xd) + (yd * yd) <= radius_squared) {
-        malloc(sizeof(entity_ref_t));
+        // TODO! free somewhere
+        // malloc(sizeof(entity_ref_t));
         list.entities[list.len++] = entity_ref(entity);
       }
     }
@@ -279,13 +298,14 @@ entity_list_t entities_by_location(vec2_t pos, float radius, entity_type_t type,
 }
 
 entity_list_t entities_by_type(entity_type_t type) {
-  entity_list_t list = {.len = 0, .entities = malloc(0)};
+  entity_list_t list = {.len = 0, .entities = get_entity_list()};
 
   // FIXME:PERF: linear search
   for (int i = 0; i < entities_len; i++) {
     entity_t *entity = entities[i];
     if (entity->type == type && entity->is_alive) {
-      malloc(sizeof(entity_ref_t));
+      // TODO! free somewhere
+      // malloc(sizeof(entity_ref_t));
       list.entities[list.len++] = entity_ref(entity);
     }
   }
@@ -294,13 +314,15 @@ entity_list_t entities_by_type(entity_type_t type) {
 }
 
 entity_list_t entities_from_json_names(json_t *targets) {
-  entity_list_t list = {.len = 0, .entities = malloc(0)};
+  entity_list_t list = {.len = 0, .entities = get_entity_list()};
 
+  json_t *values = json_values(targets);
   for (int i = 0; targets && i < targets->len; i++) {
-    char *target_name = json_string(&targets->values[i]);
+    char *target_name = json_string(&values[i]);
     entity_t *target = entity_by_name(target_name);
     if (target) {
-      malloc(sizeof(entity_ref_t));
+      // TODO! free somewhere
+      // malloc(sizeof(entity_ref_t));
       list.entities[list.len++] = entity_ref(target);
     }
   }

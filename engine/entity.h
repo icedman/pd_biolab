@@ -11,9 +11,9 @@
 
 // See entity_def.h for the basic struct that is used by ENTITY_DEFINE()
 
-#include "../libs/pl_json.h"
 #include "animation.h"
 #include "entity_def.h"
+#include "json.h"
 #include "trace.h"
 #include "types.h"
 

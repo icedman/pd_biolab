@@ -16,19 +16,24 @@ map_t *map_with_data(uint16_t tile_size, vec2i_t size, uint16_t *data) {
   error_if(engine_is_running(), "Cannot create map during gameplay");
 
   int dataSize = size.x * size.y * sizeof(uint16_t);
+  // TODO! free somewhere
   map_t *map = malloc(sizeof(map_t));
   memset(map, 0, sizeof(map_t));
   map->size = size;
   map->tile_size = tile_size;
   map->distance = 1;
-  map->data = data ? data : malloc(dataSize);
-  memset(map->data, 0, dataSize);
+  map->data = malloc(dataSize);
+  memcpy(map->data, data, dataSize);
   return map;
 }
+
+void dump_json_node(json_t *node, int level);
 
 map_t *map_from_json(json_t *def) {
   error_if(engine_is_running(), "Cannot create map during gameplay");
 
+  // TODO! free somewhere
+  // now freed at engine_maps_reset
   map_t *map = malloc(sizeof(map_t));
 
   map->size.x = json_number(json_value_for_key(def, "width"));
@@ -51,27 +56,32 @@ map_t *map_from_json(json_t *def) {
     map->tileset = image(tileset_name);
   }
 
+  // printf("%d %d\n", map->size.x, map->size.y);
+
   json_t *data = json_value_for_key(def, "data");
   error_if(data->type != JSON_ARRAY, "Map data is not an array");
   error_if(data->len != map->size.y, "Map data height is %d expected %d",
            data->len, map->size.y);
 
+  // TODO! free somewhere
+  // freed at engine_maps_reset
   map->data = malloc(sizeof(uint16_t) * map->size.x * map->size.y);
 
   int index = 0;
   for (int y = 0; y < data->len; y++) {
     json_t *row = json_value_at(data, y);
+    // printf("%d>%p\n", y, row);
     for (int x = 0; x < row->len; x++, index++) {
       map->data[index] = json_number(json_value_at(row, x));
       map->max_tile = max(map->max_tile, map->data[index]);
     }
   }
-
   return map;
 }
 
 void map_set_anim_with_len(map_t *map, uint16_t tile, float frame_time,
                            uint16_t *sequence, uint16_t sequence_len) {
+  // todo crashes on device
   // error_if(engine_is_running(), "Cannot set map animation during gameplay");
   // error_if(sequence_len == 0, "Map animation has empty sequence");
 
